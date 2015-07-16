@@ -225,10 +225,10 @@ finish:
     g_key_file_free(config);
     g_free(m_config_filename);
 
-    while (!clientNames.empty()) {
-        std::map<uint32_t, char*>::iterator i = clientNames.begin();
+    while (!clientInfos.empty()) {
+        std::map<uint32_t, pa_client_info*>::iterator i = clientInfos.begin();
         g_free(i->second);
-        clientNames.erase(i);
+        clientInfos.erase(i);
     }
 }
 
@@ -701,8 +701,8 @@ void MainWindow::updateSinkInput(const pa_sink_input_info &info) {
     w->setSinkIndex(info.sink);
 
     char *txt;
-    if (clientNames.count(info.client)) {
-        w->boldNameLabel->set_markup(txt = g_markup_printf_escaped("<b>%s</b>", clientNames[info.client]));
+    if (clientInfos.count(info.client)) {
+        w->boldNameLabel->set_markup(txt = g_markup_printf_escaped("<b>%s</b>", clientInfos[info.client]->name));
         g_free(txt);
         w->nameLabel->set_markup(txt = g_markup_printf_escaped(": %s", info.name));
         g_free(txt);
@@ -754,8 +754,8 @@ void MainWindow::updateSourceOutput(const pa_source_output_info &info) {
     w->setSourceIndex(info.source);
 
     char *txt;
-    if (clientNames.count(info.client)) {
-        w->boldNameLabel->set_markup(txt = g_markup_printf_escaped("<b>%s</b>", clientNames[info.client]));
+    if (clientInfos.count(info.client)) {
+        w->boldNameLabel->set_markup(txt = g_markup_printf_escaped("<b>%s</b>", clientInfos[info.client]->name));
         g_free(txt);
         w->nameLabel->set_markup(txt = g_markup_printf_escaped(": %s", info.name));
         g_free(txt);
@@ -779,8 +779,8 @@ void MainWindow::updateSourceOutput(const pa_source_output_info &info) {
 
 void MainWindow::updateClient(const pa_client_info &info) {
 
-    g_free(clientNames[info.index]);
-    clientNames[info.index] = g_strdup(info.name);
+    g_free(clientInfos[info.index]);
+    clientInfos[info.index] = (pa_client_info*) g_memdup(&info, sizeof(pa_client_info));
 
     for (std::map<uint32_t, SinkInputWidget*>::iterator i = sinkInputWidgets.begin(); i != sinkInputWidgets.end(); ++i) {
         SinkInputWidget *w = i->second;
@@ -1153,8 +1153,8 @@ void MainWindow::removeSourceOutput(uint32_t index) {
 }
 
 void MainWindow::removeClient(uint32_t index) {
-    g_free(clientNames[index]);
-    clientNames.erase(index);
+    g_free(clientInfos[index]);
+    clientInfos.erase(index);
 }
 
 void MainWindow::removeAllWidgets() {
@@ -1168,7 +1168,7 @@ void MainWindow::removeAllWidgets() {
         removeSource(it->first);
     for (std::map<uint32_t, CardWidget*>::iterator it = cardWidgets.begin(); it != cardWidgets.end(); ++it)
        removeCard(it->first);
-    for (std::map<uint32_t, char*>::iterator it = clientNames.begin(); it != clientNames.end(); ++it)
+    for (std::map<uint32_t, pa_client_info*>::iterator it = clientInfos.begin(); it != clientInfos.end(); ++it)
         removeClient(it->first);
     deleteEventRoleWidget();
 }

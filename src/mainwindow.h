@@ -74,7 +74,7 @@ public:
     std::map<uint32_t, SourceWidget*> sourceWidgets;
     std::map<uint32_t, SinkInputWidget*> sinkInputWidgets;
     std::map<uint32_t, SourceOutputWidget*> sourceOutputWidgets;
-    std::map<uint32_t, char*> clientNames;
+    std::map<uint32_t, pa_client_info*> clientInfos;
 
     SinkInputType showSinkInputType;
     SinkType showSinkType;
