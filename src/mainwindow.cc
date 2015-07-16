@@ -704,7 +704,11 @@ void MainWindow::updateSinkInput(const pa_sink_input_info &info) {
     if (clientNames.count(info.client)) {
         w->boldNameLabel->set_markup(txt = g_markup_printf_escaped("<b>%s</b>", clientNames[info.client]));
         g_free(txt);
-        w->nameLabel->set_markup(txt = g_markup_printf_escaped(": %s", info.name));
+        w->nameLabel->set_markup(txt = g_markup_printf_escaped(": %s for <b>%s</b> (%s)",
+                    info.name,
+                    pa_proplist_gets(info.proplist, PA_PROP_APPLICATION_PROCESS_USER),
+                    pa_proplist_gets(info.proplist, PA_PROP_WINDOW_X11_DISPLAY)
+                    ));
         g_free(txt);
     } else {
         w->boldNameLabel->set_text("");
@@ -757,7 +761,11 @@ void MainWindow::updateSourceOutput(const pa_source_output_info &info) {
     if (clientNames.count(info.client)) {
         w->boldNameLabel->set_markup(txt = g_markup_printf_escaped("<b>%s</b>", clientNames[info.client]));
         g_free(txt);
-        w->nameLabel->set_markup(txt = g_markup_printf_escaped(": %s", info.name));
+        w->nameLabel->set_markup(txt = g_markup_printf_escaped(": %s for <b>%s</b> (%s)",
+                    info.name,
+                    pa_proplist_gets(info.proplist, PA_PROP_APPLICATION_PROCESS_USER),
+                    pa_proplist_gets(info.proplist, PA_PROP_WINDOW_X11_DISPLAY)
+                    ));
         g_free(txt);
     } else {
         w->boldNameLabel->set_text("");
