@@ -779,8 +779,18 @@ void MainWindow::updateSourceOutput(const pa_source_output_info &info) {
 
 void MainWindow::updateClient(const pa_client_info &info) {
 
+    if(clientInfos[info.index]){
+        g_free((gpointer) clientInfos[info.index]->name);
+        g_free((gpointer) clientInfos[info.index]->driver);
+        pa_proplist_free(clientInfos[info.index]->proplist);
+    } //end if
+
     g_free(clientInfos[info.index]);
+
     clientInfos[info.index] = (pa_client_info*) g_memdup(&info, sizeof(pa_client_info));
+    clientInfos[info.index]->driver = g_strdup(info.driver);
+    clientInfos[info.index]->name = g_strdup(info.name);
+    clientInfos[info.index]->proplist = pa_proplist_copy(info.proplist);
 
     for (std::map<uint32_t, SinkInputWidget*>::iterator i = sinkInputWidgets.begin(); i != sinkInputWidgets.end(); ++i) {
         SinkInputWidget *w = i->second;
@@ -1153,6 +1163,12 @@ void MainWindow::removeSourceOutput(uint32_t index) {
 }
 
 void MainWindow::removeClient(uint32_t index) {
+    if(clientInfos[index]){
+        g_free((gpointer) clientInfos[index]->name);
+        g_free((gpointer) clientInfos[index]->driver);
+        pa_proplist_free(clientInfos[index]->proplist);
+    } //end if
+
     g_free(clientInfos[index]);
     clientInfos.erase(index);
 }
