@@ -23,6 +23,7 @@
 #endif
 
 #include <set>
+#include <iostream>
 
 #include "mainwindow.h"
 
@@ -700,11 +701,28 @@ void MainWindow::updateSinkInput(const pa_sink_input_info &info) {
 
     w->setSinkIndex(info.sink);
 
+    std::cout << "\n\nSINK PROPERTIES:\n";
+    const char *prop_name;
+    for(void *state = NULL; prop_name = pa_proplist_iterate(info.proplist, &state); )
+        std::cout << prop_name << " = " << pa_proplist_gets(info.proplist, prop_name) << std::endl;
+
+
+
     char *txt;
     if (clientInfos.count(info.client)) {
-        w->boldNameLabel->set_markup(txt = g_markup_printf_escaped("<b>%s</b>", clientInfos[info.client]->name));
+        pa_client_info* client = clientInfos[info.client];
+
+
+        std::cout << "\nCLIENT PROPERTIES:\n";
+        for(void *state = NULL; prop_name = pa_proplist_iterate(client->proplist, &state); )
+            std::cout << prop_name << " = " << pa_proplist_gets(info.proplist, prop_name) << std::endl;
+
+
+        w->boldNameLabel->set_markup(txt = g_markup_printf_escaped("<b>%s</b> [%s]",
+                    client->name,
+                    pa_proplist_gets(client->proplist, PA_PROP_APPLICATION_ID)));
         g_free(txt);
-        w->nameLabel->set_markup(txt = g_markup_printf_escaped(": %s", info.name));
+        w->nameLabel->set_markup(txt = g_markup_printf_escaped(": %s <i>at</i> SOMEWHERE SPECIAL", info.name));
         g_free(txt);
     } else {
         w->boldNameLabel->set_text("");
